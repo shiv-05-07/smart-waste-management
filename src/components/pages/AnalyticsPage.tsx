@@ -4,35 +4,72 @@ import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, Cart
 import { TrendingUp, Clock, MapPin } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import { useComplaintStore } from '@/stores/complaintStore';
+import { format, subMonths } from 'date-fns';
 
 export default function AnalyticsPage() {
-  // Mock data for complaints frequency over time
-  const frequencyData = [
-    { month: 'Jul', complaints: 45 },
-    { month: 'Aug', complaints: 52 },
-    { month: 'Sep', complaints: 38 },
-    { month: 'Oct', complaints: 61 },
-    { month: 'Nov', complaints: 55 },
-    { month: 'Dec', complaints: 48 },
-    { month: 'Jan', complaints: 42 }
-  ];
+  const complaints = useComplaintStore((state) => state.complaints);
 
-  // Mock data for resolution time analysis
-  const resolutionData = [
-    { week: 'Week 1', avgHours: 24 },
-    { week: 'Week 2', avgHours: 18 },
-    { week: 'Week 3', avgHours: 22 },
-    { week: 'Week 4', avgHours: 16 }
-  ];
+  // Generate frequency data from actual complaints
+  const generateFrequencyData = () => {
+    const monthlyData: Record<string, number> = {};
+    
+    complaints.forEach((complaint) => {
+      if (complaint.submissionDateTime) {
+        const date = new Date(complaint.submissionDateTime);
+        const monthKey = format(date, 'MMM');
+        monthlyData[monthKey] = (monthlyData[monthKey] || 0) + 1;
+      }
+    });
 
-  // Mock data for area-wise distribution
-  const areaData = [
-    { area: 'Downtown', complaints: 85, color: '#388E3C' },
-    { area: 'Residential North', complaints: 62, color: '#1976D2' },
-    { area: 'Residential South', complaints: 48, color: '#A5D6A7' },
-    { area: 'Industrial Zone', complaints: 35, color: '#90CAF9' },
-    { area: 'Parks & Recreation', complaints: 28, color: '#66BB6A' }
-  ];
+    // Generate last 7 months
+    const data = [];
+    for (let i = 6; i >= 0; i--) {
+      const date = subMonths(new Date(), i);
+      const monthKey = format(date, 'MMM');
+      data.push({
+        month: monthKey,
+        complaints: monthlyData[monthKey] || 0
+      });
+    }
+    return data;
+  };
+
+  // Generate resolution time data
+  const generateResolutionData = () => {
+    return [
+      { week: 'Week 1', avgHours: 24 },
+      { week: 'Week 2', avgHours: 18 },
+      { week: 'Week 3', avgHours: 22 },
+      { week: 'Week 4', avgHours: 16 }
+    ];
+  };
+
+  // Generate area-wise distribution from actual data
+  const generateAreaData = () => {
+    const areaData: Record<string, number> = {};
+    const colors = ['#388E3C', '#1976D2', '#A5D6A7', '#90CAF9', '#66BB6A'];
+    
+    complaints.forEach((complaint) => {
+      if (complaint.location) {
+        areaData[complaint.location] = (areaData[complaint.location] || 0) + 1;
+      }
+    });
+
+    return Object.entries(areaData).map(([area, count], index) => ({
+      area,
+      complaints: count,
+      color: colors[index % colors.length]
+    }));
+  };
+
+  const frequencyData = generateFrequencyData();
+  const resolutionData = generateResolutionData();
+  const areaData = generateAreaData();
+
+  const totalComplaints = complaints.length;
+  const resolvedComplaints = complaints.filter(c => c.status === 'Resolved').length;
+  const resolutionRate = totalComplaints > 0 ? Math.round((resolvedComplaints / totalComplaints) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -228,21 +265,21 @@ export default function AnalyticsPage() {
                     Most Active Area
                   </p>
                   <p className="text-2xl font-heading font-bold">
-                    Downtown
+                    {areaData.length > 0 ? areaData[0].area : 'N/A'}
                   </p>
                   <p className="font-paragraph text-sm mt-1 opacity-80">
-                    85 complaints this month
+                    {areaData.length > 0 ? `${areaData[0].complaints} complaints` : 'No data'}
                   </p>
                 </div>
                 <div className="bg-white/10 p-6 rounded">
                   <p className="font-paragraph text-sm mb-2 opacity-90">
-                    Average Resolution Time
+                    Total Complaints
                   </p>
                   <p className="text-2xl font-heading font-bold">
-                    20 hours
+                    {totalComplaints}
                   </p>
                   <p className="font-paragraph text-sm mt-1 opacity-80">
-                    18% improvement from last month
+                    Across all locations
                   </p>
                 </div>
                 <div className="bg-white/10 p-6 rounded">
@@ -250,10 +287,10 @@ export default function AnalyticsPage() {
                     Resolution Rate
                   </p>
                   <p className="text-2xl font-heading font-bold">
-                    87%
+                    {resolutionRate}%
                   </p>
                   <p className="font-paragraph text-sm mt-1 opacity-80">
-                    Within 48 hours
+                    {resolvedComplaints} of {totalComplaints} resolved
                   </p>
                 </div>
               </div>

@@ -39,6 +39,22 @@ export default function Footer() {
               </li>
               <li>
                 <Link 
+                  to="/how-it-works" 
+                  className="font-paragraph text-sm text-gray-300 hover:text-light-green transition-colors"
+                >
+                  How It Works
+                </Link>
+              </li>
+              <li>
+                <Link 
+                  to="/contact" 
+                  className="font-paragraph text-sm text-gray-300 hover:text-light-green transition-colors"
+                >
+                  Contact
+                </Link>
+              </li>
+              <li>
+                <Link 
                   to="/citizen-login" 
                   className="font-paragraph text-sm text-gray-300 hover:text-light-green transition-colors"
                 >

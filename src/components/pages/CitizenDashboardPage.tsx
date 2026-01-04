@@ -6,9 +6,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Upload, MapPin, FileText, Clock, CheckCircle, AlertCircle } from 'lucide-react';
+import { Upload, MapPin, FileText, Clock, CheckCircle, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import ComplaintDetailModal from '@/components/ComplaintDetailModal';
+import { useComplaintStore } from '@/stores/complaintStore';
 import { format } from 'date-fns';
 
 export default function CitizenDashboardPage() {
@@ -18,38 +20,35 @@ export default function CitizenDashboardPage() {
     image: null as File | null
   });
 
-  // Mock data for submitted complaints
-  const [complaints] = useState([
-    {
-      id: 'WC-001',
-      description: 'Overflowing garbage bin near park entrance',
-      location: 'Central Park, Main Gate',
-      status: 'In Progress',
-      submissionDate: new Date('2026-01-02T10:30:00'),
-      assignedWorker: 'John Smith'
-    },
-    {
-      id: 'WC-002',
-      description: 'Illegal dumping on street corner',
-      location: '5th Avenue & Oak Street',
-      status: 'Resolved',
-      submissionDate: new Date('2025-12-28T14:15:00'),
-      assignedWorker: 'Sarah Johnson'
-    },
-    {
-      id: 'WC-003',
-      description: 'Broken waste container needs replacement',
-      location: 'Community Center Parking Lot',
-      status: 'Pending',
-      submissionDate: new Date('2026-01-03T09:00:00'),
-      assignedWorker: null
-    }
-  ]);
+  const complaints = useComplaintStore((state) => state.complaints);
+  const addComplaint = useComplaintStore((state) => state.addComplaint);
+  const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Mock current citizen email - in real app, get from auth context
+  const currentCitizenEmail = 'alice@example.com';
+
+  const citizenComplaints = complaints.filter(
+    (c) => c.citizenEmail === currentCitizenEmail
+  );
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Placeholder for complaint submission
-    console.log('Complaint submitted:', formData);
+    // Create new complaint with unique ID
+    const newComplaint = {
+      _id: `WC-${String(complaints.length + 1).padStart(3, '0')}`,
+      description: formData.description,
+      location: formData.location,
+      status: 'Pending',
+      submissionDateTime: new Date(),
+      assignedWorkerName: undefined,
+      citizenName: 'Alice Johnson',
+      citizenEmail: currentCitizenEmail,
+      adminRemarks: undefined,
+      complaintImage: formData.image ? URL.createObjectURL(formData.image) : undefined
+    };
+    addComplaint(newComplaint);
     // Reset form
     setFormData({
       description: '',
@@ -74,7 +73,7 @@ export default function CitizenDashboardPage() {
     }
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status?: string) => {
     switch (status) {
       case 'Pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-300';
@@ -87,7 +86,7 @@ export default function CitizenDashboardPage() {
     }
   };
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status?: string) => {
     switch (status) {
       case 'Pending':
         return <Clock className="w-4 h-4" />;
@@ -98,6 +97,11 @@ export default function CitizenDashboardPage() {
       default:
         return null;
     }
+  };
+
+  const handleOpenModal = (complaint: any) => {
+    setSelectedComplaint(complaint);
+    setIsModalOpen(true);
   };
 
   return (
@@ -222,19 +226,19 @@ export default function CitizenDashboardPage() {
                 <div className="grid grid-cols-3 gap-4">
                   <div className="bg-yellow-50 p-4 rounded text-center">
                     <p className="text-2xl font-heading font-bold text-yellow-800">
-                      {complaints.filter(c => c.status === 'Pending').length}
+                      {citizenComplaints.filter(c => c.status === 'Pending').length}
                     </p>
                     <p className="font-paragraph text-xs text-yellow-700 mt-1">Pending</p>
                   </div>
                   <div className="bg-blue-50 p-4 rounded text-center">
                     <p className="text-2xl font-heading font-bold text-blue-800">
-                      {complaints.filter(c => c.status === 'In Progress').length}
+                      {citizenComplaints.filter(c => c.status === 'In Progress').length}
                     </p>
                     <p className="font-paragraph text-xs text-blue-700 mt-1">In Progress</p>
                   </div>
                   <div className="bg-green-50 p-4 rounded text-center">
                     <p className="text-2xl font-heading font-bold text-green-800">
-                      {complaints.filter(c => c.status === 'Resolved').length}
+                      {citizenComplaints.filter(c => c.status === 'Resolved').length}
                     </p>
                     <p className="font-paragraph text-xs text-green-700 mt-1">Resolved</p>
                   </div>
@@ -251,55 +255,88 @@ export default function CitizenDashboardPage() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="mt-12"
         >
-          <h2 className="text-3xl font-heading font-semibold text-foreground mb-6">
-            My Complaints
-          </h2>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-3xl font-heading font-semibold text-foreground">
+              My Complaints
+            </h2>
+            <a href="/complaint-history" className="text-primary hover:underline font-paragraph text-sm">
+              View All →
+            </a>
+          </div>
           
           <div className="space-y-4">
-            {complaints.map((complaint) => (
-              <Card key={complaint.id} className="shadow-sm hover:shadow-md transition-shadow">
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-start">
-                    <div className="md:col-span-8">
-                      <div className="flex items-start justify-between mb-3">
-                        <div>
-                          <h3 className="font-heading text-xl font-semibold text-foreground mb-1">
-                            {complaint.id}
-                          </h3>
-                          <p className="font-paragraph text-sm text-foreground/70 flex items-center">
-                            <MapPin className="w-4 h-4 mr-1" />
-                            {complaint.location}
-                          </p>
-                        </div>
-                      </div>
-                      <p className="font-paragraph text-base text-foreground/80 mb-3">
-                        {complaint.description}
-                      </p>
-                      <div className="flex flex-wrap gap-3 text-sm">
-                        <span className="font-paragraph text-foreground/60 flex items-center">
-                          <Clock className="w-4 h-4 mr-1" />
-                          {format(complaint.submissionDate, 'MMM dd, yyyy HH:mm')}
-                        </span>
-                        {complaint.assignedWorker && (
-                          <span className="font-paragraph text-foreground/60">
-                            Assigned to: {complaint.assignedWorker}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                    <div className="md:col-span-4 flex justify-end">
-                      <Badge className={`${getStatusColor(complaint.status)} border font-paragraph text-sm px-3 py-1 flex items-center gap-2`}>
-                        {getStatusIcon(complaint.status)}
-                        {complaint.status}
-                      </Badge>
-                    </div>
-                  </div>
+            {citizenComplaints.length === 0 ? (
+              <Card className="shadow-sm">
+                <CardContent className="p-12 text-center">
+                  <p className="font-paragraph text-lg text-foreground/70">
+                    No complaints submitted yet. Start by reporting an issue.
+                  </p>
                 </CardContent>
               </Card>
-            ))}
+            ) : (
+              citizenComplaints.map((complaint) => (
+                <motion.div
+                  key={complaint._id}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <Card 
+                    className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                    onClick={() => handleOpenModal(complaint)}
+                  >
+                    <CardContent className="p-6">
+                      <div className="flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-3">
+                            <h3 className="font-heading text-xl font-semibold text-foreground">
+                              {complaint._id}
+                            </h3>
+                            <Badge className={`${getStatusColor(complaint.status)} border font-paragraph text-sm px-3 py-1 flex items-center gap-2`}>
+                              {getStatusIcon(complaint.status)}
+                              {complaint.status}
+                            </Badge>
+                          </div>
+                          <p className="font-paragraph text-base text-foreground/80 mb-3 line-clamp-2">
+                            {complaint.description}
+                          </p>
+                          <div className="flex flex-wrap gap-6 text-sm">
+                            <span className="font-paragraph text-foreground/60 flex items-center">
+                              <MapPin className="w-4 h-4 mr-2" />
+                              {complaint.location}
+                            </span>
+                            <span className="font-paragraph text-foreground/60 flex items-center">
+                              <Clock className="w-4 h-4 mr-2" />
+                              {complaint.submissionDateTime
+                                ? format(new Date(complaint.submissionDateTime), 'MMM dd, yyyy')
+                                : 'N/A'}
+                            </span>
+                            {complaint.assignedWorkerName && (
+                              <span className="font-paragraph text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
+                                Assigned to {complaint.assignedWorkerName}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        <div className="flex-shrink-0">
+                          <ChevronDown className="w-6 h-6 text-foreground/50" />
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </motion.div>
+              ))
+            )}
           </div>
         </motion.div>
       </div>
+
+      {/* Detail Modal */}
+      <ComplaintDetailModal
+        complaint={selectedComplaint}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
 
       <Footer />
     </div>

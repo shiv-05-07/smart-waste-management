@@ -42,6 +42,22 @@ export default function Header() {
               About
             </Link>
             <Link 
+              to="/how-it-works" 
+              className={`font-paragraph text-base transition-colors ${
+                isActive('/how-it-works') ? 'text-primary' : 'text-foreground hover:text-primary'
+              }`}
+            >
+              How It Works
+            </Link>
+            <Link 
+              to="/contact" 
+              className={`font-paragraph text-base transition-colors ${
+                isActive('/contact') ? 'text-primary' : 'text-foreground hover:text-primary'
+              }`}
+            >
+              Contact
+            </Link>
+            <Link 
               to="/citizen-login" 
               className={`font-paragraph text-base transition-colors ${
                 isActive('/citizen-login') ? 'text-primary' : 'text-foreground hover:text-primary'
@@ -99,6 +115,24 @@ export default function Header() {
                 onClick={() => setMobileMenuOpen(false)}
               >
                 About
+              </Link>
+              <Link 
+                to="/how-it-works" 
+                className={`font-paragraph text-base transition-colors ${
+                  isActive('/how-it-works') ? 'text-primary' : 'text-foreground'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                How It Works
+              </Link>
+              <Link 
+                to="/contact" 
+                className={`font-paragraph text-base transition-colors ${
+                  isActive('/contact') ? 'text-primary' : 'text-foreground'
+                }`}
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Contact
               </Link>
               <Link 
                 to="/citizen-login" 

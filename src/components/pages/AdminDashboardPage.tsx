@@ -12,61 +12,21 @@ import {
   Users, 
   MapPin, 
   BarChart3,
-  UserCheck
+  UserCheck,
+  ChevronDown
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import ComplaintDetailModal from '@/components/ComplaintDetailModal';
+import { useComplaintStore } from '@/stores/complaintStore';
 import { format } from 'date-fns';
 
 export default function AdminDashboardPage() {
-  // Mock data for complaints
-  const [complaints, setComplaints] = useState([
-    {
-      id: 'WC-001',
-      description: 'Overflowing garbage bin near park entrance',
-      location: 'Central Park, Main Gate',
-      status: 'In Progress',
-      submissionDate: new Date('2026-01-02T10:30:00'),
-      assignedWorker: 'John Smith',
-      citizenName: 'Alice Johnson'
-    },
-    {
-      id: 'WC-002',
-      description: 'Illegal dumping on street corner',
-      location: '5th Avenue & Oak Street',
-      status: 'Resolved',
-      submissionDate: new Date('2025-12-28T14:15:00'),
-      assignedWorker: 'Sarah Johnson',
-      citizenName: 'Bob Williams'
-    },
-    {
-      id: 'WC-003',
-      description: 'Broken waste container needs replacement',
-      location: 'Community Center Parking Lot',
-      status: 'Pending',
-      submissionDate: new Date('2026-01-03T09:00:00'),
-      assignedWorker: null,
-      citizenName: 'Carol Davis'
-    },
-    {
-      id: 'WC-004',
-      description: 'Scattered litter in residential area',
-      location: 'Maple Street, Block 5',
-      status: 'Pending',
-      submissionDate: new Date('2026-01-04T08:20:00'),
-      assignedWorker: null,
-      citizenName: 'David Brown'
-    },
-    {
-      id: 'WC-005',
-      description: 'Overflowing recycling bins',
-      location: 'Downtown Shopping District',
-      status: 'In Progress',
-      submissionDate: new Date('2026-01-03T16:45:00'),
-      assignedWorker: 'Mike Wilson',
-      citizenName: 'Emma Martinez'
-    }
-  ]);
+  const complaints = useComplaintStore((state) => state.complaints);
+  const updateComplaint = useComplaintStore((state) => state.updateComplaint);
+  const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Mock workers data
   const workers = [
@@ -78,18 +38,19 @@ export default function AdminDashboardPage() {
   ];
 
   const handleAssignWorker = (complaintId: string, workerName: string) => {
-    setComplaints(complaints.map(c => 
-      c.id === complaintId ? { ...c, assignedWorker: workerName, status: 'In Progress' } : c
-    ));
+    updateComplaint(complaintId, { assignedWorkerName: workerName, status: 'In Progress' });
   };
 
   const handleUpdateStatus = (complaintId: string, newStatus: string) => {
-    setComplaints(complaints.map(c => 
-      c.id === complaintId ? { ...c, status: newStatus } : c
-    ));
+    updateComplaint(complaintId, { status: newStatus });
   };
 
-  const getStatusColor = (status: string) => {
+  const handleOpenModal = (complaint: any) => {
+    setSelectedComplaint(complaint);
+    setIsModalOpen(true);
+  };
+
+  const getStatusColor = (status?: string) => {
     switch (status) {
       case 'Pending':
         return 'bg-yellow-100 text-yellow-800 border-yellow-300';
@@ -99,6 +60,19 @@ export default function AdminDashboardPage() {
         return 'bg-green-100 text-green-800 border-green-300';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
+  const getStatusIcon = (status?: string) => {
+    switch (status) {
+      case 'Pending':
+        return <Clock className="w-4 h-4" />;
+      case 'In Progress':
+        return <Clock className="w-4 h-4" />;
+      case 'Resolved':
+        return <CheckCircle className="w-4 h-4" />;
+      default:
+        return null;
     }
   };
 
@@ -198,7 +172,7 @@ export default function AdminDashboardPage() {
           </Card>
         </motion.div>
 
-        {/* Complaints Management Table */}
+        {/* Complaints Table */}
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
@@ -206,120 +180,83 @@ export default function AdminDashboardPage() {
         >
           <Card className="shadow-sm">
             <CardHeader>
-              <CardTitle className="font-heading text-2xl font-semibold text-foreground">
-                Complaints Management
-              </CardTitle>
+              <div className="flex items-center justify-between">
+                <CardTitle className="font-heading text-2xl font-semibold text-foreground">
+                  Recent Complaints
+                </CardTitle>
+                <Link to="/admin-complaint-management">
+                  <Button variant="outline" className="rounded">
+                    View All
+                  </Button>
+                </Link>
+              </div>
             </CardHeader>
             <CardContent>
-              <div className="overflow-x-auto">
-                <table className="w-full">
-                  <thead>
-                    <tr className="border-b border-gray-200">
-                      <th className="text-left py-4 px-4 font-heading text-sm font-semibold text-foreground">
-                        ID
-                      </th>
-                      <th className="text-left py-4 px-4 font-heading text-sm font-semibold text-foreground">
-                        Location
-                      </th>
-                      <th className="text-left py-4 px-4 font-heading text-sm font-semibold text-foreground">
-                        Description
-                      </th>
-                      <th className="text-left py-4 px-4 font-heading text-sm font-semibold text-foreground">
-                        Citizen
-                      </th>
-                      <th className="text-left py-4 px-4 font-heading text-sm font-semibold text-foreground">
-                        Status
-                      </th>
-                      <th className="text-left py-4 px-4 font-heading text-sm font-semibold text-foreground">
-                        Assigned Worker
-                      </th>
-                      <th className="text-left py-4 px-4 font-heading text-sm font-semibold text-foreground">
-                        Actions
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {complaints.map((complaint) => (
-                      <tr key={complaint.id} className="border-b border-gray-100 hover:bg-gray-50">
-                        <td className="py-4 px-4">
-                          <span className="font-paragraph text-sm font-medium text-foreground">
-                            {complaint.id}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <div className="flex items-start">
-                            <MapPin className="w-4 h-4 text-gray-400 mt-0.5 mr-2 flex-shrink-0" />
-                            <span className="font-paragraph text-sm text-foreground/80">
-                              {complaint.location}
-                            </span>
-                          </div>
-                        </td>
-                        <td className="py-4 px-4 max-w-xs">
-                          <p className="font-paragraph text-sm text-foreground/80 line-clamp-2">
-                            {complaint.description}
-                          </p>
-                        </td>
-                        <td className="py-4 px-4">
-                          <span className="font-paragraph text-sm text-foreground/80">
-                            {complaint.citizenName}
-                          </span>
-                        </td>
-                        <td className="py-4 px-4">
-                          <Select
-                            value={complaint.status}
-                            onValueChange={(value) => handleUpdateStatus(complaint.id, value)}
-                          >
-                            <SelectTrigger className="w-[140px]">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Pending">Pending</SelectItem>
-                              <SelectItem value="In Progress">In Progress</SelectItem>
-                              <SelectItem value="Resolved">Resolved</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </td>
-                        <td className="py-4 px-4">
-                          {complaint.assignedWorker ? (
-                            <div className="flex items-center">
-                              <UserCheck className="w-4 h-4 text-green-600 mr-2" />
-                              <span className="font-paragraph text-sm text-foreground/80">
-                                {complaint.assignedWorker}
-                              </span>
+              <div className="space-y-4">
+                {complaints.slice(0, 5).map((complaint) => (
+                  <motion.div
+                    key={complaint._id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <Card
+                      className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => handleOpenModal(complaint)}
+                    >
+                      <CardContent className="p-6">
+                        <div className="flex items-start justify-between gap-4">
+                          <div className="flex-1">
+                            <div className="flex items-center gap-3 mb-3">
+                              <h3 className="font-heading text-lg font-semibold text-foreground">
+                                {complaint._id}
+                              </h3>
+                              <Badge className={`${getStatusColor(complaint.status)} border font-paragraph text-sm px-3 py-1 flex items-center gap-2`}>
+                                {getStatusIcon(complaint.status)}
+                                {complaint.status}
+                              </Badge>
                             </div>
-                          ) : (
-                            <span className="font-paragraph text-sm text-foreground/50 italic">
-                              Not assigned
-                            </span>
-                          )}
-                        </td>
-                        <td className="py-4 px-4">
-                          {!complaint.assignedWorker && (
-                            <Select
-                              onValueChange={(value) => handleAssignWorker(complaint.id, value)}
-                            >
-                              <SelectTrigger className="w-[140px]">
-                                <SelectValue placeholder="Assign worker" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {workers.map((worker) => (
-                                  <SelectItem key={worker.id} value={worker.name}>
-                                    {worker.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          )}
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+                            <p className="font-paragraph text-base text-foreground/80 mb-3 line-clamp-2">
+                              {complaint.description}
+                            </p>
+                            <div className="flex flex-wrap gap-6 text-sm">
+                              <span className="font-paragraph text-foreground/60 flex items-center">
+                                <MapPin className="w-4 h-4 mr-2" />
+                                {complaint.location}
+                              </span>
+                              <span className="font-paragraph text-foreground/60 flex items-center">
+                                <Clock className="w-4 h-4 mr-2" />
+                                {complaint.submissionDateTime
+                                  ? format(new Date(complaint.submissionDateTime), 'MMM dd, yyyy')
+                                  : 'N/A'}
+                              </span>
+                              {complaint.assignedWorkerName && (
+                                <span className="font-paragraph text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded">
+                                  Assigned to {complaint.assignedWorkerName}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex-shrink-0">
+                            <ChevronDown className="w-6 h-6 text-foreground/50" />
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </motion.div>
+                ))}
               </div>
             </CardContent>
           </Card>
         </motion.div>
       </div>
+
+      {/* Detail Modal */}
+      <ComplaintDetailModal
+        complaint={selectedComplaint}
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
 
       <Footer />
     </div>
