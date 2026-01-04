@@ -13,11 +13,14 @@ import {
   MapPin, 
   BarChart3,
   UserCheck,
-  ChevronDown
+  ChevronDown,
+  Eye,
+  Award
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ComplaintDetailModal from '@/components/ComplaintDetailModal';
+import CitizenDetailsModal from '@/components/CitizenDetailsModal';
 import { useComplaintStore } from '@/stores/complaintStore';
 import { format } from 'date-fns';
 
@@ -25,7 +28,9 @@ export default function AdminDashboardPage() {
   const complaints = useComplaintStore((state) => state.complaints);
   const updateComplaint = useComplaintStore((state) => state.updateComplaint);
   const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isCitizenDetailsOpen, setIsCitizenDetailsOpen] = useState(false);
+  const [selectedCitizen, setSelectedCitizen] = useState<any>(null);
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   // Mock workers data
@@ -45,17 +50,28 @@ export default function AdminDashboardPage() {
     updateComplaint(complaintId, { status: newStatus });
   };
 
-  const handleOpenModal = (complaint: any) => {
+  const handleOpenDetailModal = (complaint: any) => {
     setSelectedComplaint(complaint);
-    setIsModalOpen(true);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleOpenCitizenDetails = (complaint: any) => {
+    setSelectedCitizen({
+      citizenName: complaint.citizenName,
+      citizenEmail: complaint.citizenEmail,
+      citizenPhone: complaint.citizenPhone,
+      totalComplaints: complaint.totalComplaintsByUser,
+      recentComplaints: complaints.filter(c => c.citizenEmail === complaint.citizenEmail)
+    });
+    setIsCitizenDetailsOpen(true);
   };
 
   const getStatusColor = (status?: string) => {
     switch (status) {
       case 'Pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-red-100 text-red-800 border-red-300';
       case 'In Progress':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
+        return 'bg-orange-100 text-orange-800 border-orange-300';
       case 'Resolved':
         return 'bg-green-100 text-green-800 border-green-300';
       default:
@@ -202,7 +218,7 @@ export default function AdminDashboardPage() {
                   >
                     <Card
                       className="shadow-sm hover:shadow-md transition-shadow cursor-pointer"
-                      onClick={() => handleOpenModal(complaint)}
+                      onClick={() => handleOpenDetailModal(complaint)}
                     >
                       <CardContent className="p-6">
                         <div className="flex items-start justify-between gap-4">
@@ -215,11 +231,17 @@ export default function AdminDashboardPage() {
                                 {getStatusIcon(complaint.status)}
                                 {complaint.status}
                               </Badge>
+                              {complaint.status === 'Resolved' && (
+                                <Badge className="bg-green-100 text-green-800 border border-green-300 font-paragraph text-xs px-2 py-1 flex items-center gap-1">
+                                  <Award className="w-3 h-3" />
+                                  Verified
+                                </Badge>
+                              )}
                             </div>
                             <p className="font-paragraph text-base text-foreground/80 mb-3 line-clamp-2">
                               {complaint.description}
                             </p>
-                            <div className="flex flex-wrap gap-6 text-sm">
+                            <div className="flex flex-wrap gap-6 text-sm mb-3">
                               <span className="font-paragraph text-foreground/60 flex items-center">
                                 <MapPin className="w-4 h-4 mr-2" />
                                 {complaint.location}
@@ -236,6 +258,16 @@ export default function AdminDashboardPage() {
                                 </span>
                               )}
                             </div>
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleOpenCitizenDetails(complaint);
+                              }}
+                              className="font-paragraph text-sm text-primary hover:underline flex items-center gap-1"
+                            >
+                              <Eye className="w-4 h-4" />
+                              View Citizen: {complaint.citizenName}
+                            </button>
                           </div>
                           <div className="flex-shrink-0">
                             <ChevronDown className="w-6 h-6 text-foreground/50" />
@@ -254,8 +286,19 @@ export default function AdminDashboardPage() {
       {/* Detail Modal */}
       <ComplaintDetailModal
         complaint={selectedComplaint}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+      />
+
+      {/* Citizen Details Modal */}
+      <CitizenDetailsModal
+        isOpen={isCitizenDetailsOpen}
+        onClose={() => setIsCitizenDetailsOpen(false)}
+        citizenName={selectedCitizen?.citizenName}
+        citizenEmail={selectedCitizen?.citizenEmail}
+        citizenPhone={selectedCitizen?.citizenPhone}
+        totalComplaints={selectedCitizen?.totalComplaints}
+        recentComplaints={selectedCitizen?.recentComplaints}
       />
 
       <Footer />

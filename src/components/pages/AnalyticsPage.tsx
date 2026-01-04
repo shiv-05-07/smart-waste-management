@@ -63,9 +63,23 @@ export default function AnalyticsPage() {
     }));
   };
 
+  // Generate status distribution
+  const generateStatusData = () => {
+    const pending = complaints.filter(c => c.status === 'Pending').length;
+    const inProgress = complaints.filter(c => c.status === 'In Progress').length;
+    const resolved = complaints.filter(c => c.status === 'Resolved').length;
+
+    return [
+      { name: 'Pending', value: pending, color: '#DC2626' },
+      { name: 'In Progress', value: inProgress, color: '#EA580C' },
+      { name: 'Resolved', value: resolved, color: '#16A34A' }
+    ];
+  };
+
   const frequencyData = generateFrequencyData();
   const resolutionData = generateResolutionData();
   const areaData = generateAreaData();
+  const statusData = generateStatusData();
 
   const totalComplaints = complaints.length;
   const resolvedComplaints = complaints.filter(c => c.status === 'Resolved').length;
@@ -138,7 +152,7 @@ export default function AnalyticsPage() {
           </Card>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Resolution Time Analysis */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -241,6 +255,54 @@ export default function AnalyticsPage() {
                 </div>
                 <p className="font-paragraph text-sm text-foreground/70 mt-4 text-center">
                   Geographic distribution of complaints across city zones
+                </p>
+              </CardContent>
+            </Card>
+          </motion.div>
+
+          {/* Status Distribution */}
+          <motion.div
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.4 }}
+          >
+            <Card className="shadow-sm h-full">
+              <CardHeader>
+                <CardTitle className="font-heading text-2xl font-semibold text-foreground flex items-center">
+                  <TrendingUp className="w-6 h-6 text-primary mr-3" />
+                  Status Distribution
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={statusData}
+                        cx="50%"
+                        cy="50%"
+                        labelLine={false}
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                        outerRadius={100}
+                        fill="#8884d8"
+                        dataKey="value"
+                      >
+                        {statusData.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={entry.color} />
+                        ))}
+                      </Pie>
+                      <Tooltip 
+                        contentStyle={{ 
+                          backgroundColor: '#FFFFFF', 
+                          border: '1px solid #E0E0E0',
+                          fontFamily: 'lato-light'
+                        }}
+                      />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+                <p className="font-paragraph text-sm text-foreground/70 mt-4 text-center">
+                  Current status breakdown of all complaints
                 </p>
               </CardContent>
             </Card>

@@ -6,11 +6,13 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { MapPin, Clock, UserCheck, AlertTriangle, Search, Filter } from 'lucide-react';
+import { MapPin, Clock, UserCheck, AlertTriangle, Search, Filter, Eye, Award } from 'lucide-react';
 import { format } from 'date-fns';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import ComplaintDetailModal from '@/components/ComplaintDetailModal';
+import ResolutionModal from '@/components/ResolutionModal';
+import CitizenDetailsModal from '@/components/CitizenDetailsModal';
 import { useComplaintStore } from '@/stores/complaintStore';
 
 export default function AdminComplaintManagementPage() {
@@ -18,14 +20,17 @@ export default function AdminComplaintManagementPage() {
   const updateComplaint = useComplaintStore((state) => state.updateComplaint);
 
   const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isResolutionModalOpen, setIsResolutionModalOpen] = useState(false);
+  const [isCitizenDetailsOpen, setIsCitizenDetailsOpen] = useState(false);
+  const [selectedCitizen, setSelectedCitizen] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [locationFilter, setLocationFilter] = useState<string>('all');
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingRemarks, setEditingRemarks] = useState('');
-  const [editingWorker, setEditingWorker] = useState('');
 
+  // Mock workers data
   const workers = [
     { id: '1', name: 'John Smith' },
     { id: '2', name: 'Sarah Johnson' },
@@ -50,12 +55,60 @@ export default function AdminComplaintManagementPage() {
     return matchesSearch && matchesStatus && matchesLocation;
   });
 
+  const handleAssignWorker = (complaintId: string, workerName: string) => {
+    updateComplaint(complaintId, { assignedWorkerName: workerName, status: 'In Progress' });
+  };
+
+  const handleUpdateStatus = (complaintId: string, newStatus: string) => {
+    if (newStatus === 'Resolved') {
+      // Open resolution modal instead of directly updating
+      const complaint = complaints.find(c => c._id === complaintId);
+      setSelectedComplaint(complaint);
+      setIsResolutionModalOpen(true);
+    } else {
+      updateComplaint(complaintId, { status: newStatus });
+    }
+  };
+
+  const handleResolutionSubmit = (resolutionData: any) => {
+    updateComplaint(selectedComplaint._id, {
+      status: 'Resolved',
+      resolution: {
+        ...resolutionData,
+        resolvedBy: 'Admin Team'
+      }
+    });
+    setIsResolutionModalOpen(false);
+  };
+
+  const handleOpenDetailModal = (complaint: any) => {
+    setSelectedComplaint(complaint);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleOpenCitizenDetails = (complaint: any) => {
+    setSelectedCitizen({
+      citizenName: complaint.citizenName,
+      citizenEmail: complaint.citizenEmail,
+      citizenPhone: complaint.citizenPhone,
+      totalComplaints: complaint.totalComplaintsByUser,
+      recentComplaints: complaints.filter(c => c.citizenEmail === complaint.citizenEmail)
+    });
+    setIsCitizenDetailsOpen(true);
+  };
+
+  const handleSaveRemarks = (id: string) => {
+    updateComplaint(id, { adminRemarks: editingRemarks });
+    setEditingId(null);
+    setEditingRemarks('');
+  };
+
   const getStatusColor = (status?: string) => {
     switch (status) {
       case 'Pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-red-100 text-red-800 border-red-300';
       case 'In Progress':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
+        return 'bg-orange-100 text-orange-800 border-orange-300';
       case 'Resolved':
         return 'bg-green-100 text-green-800 border-green-300';
       default:
@@ -74,25 +127,6 @@ export default function AdminComplaintManagementPage() {
       default:
         return null;
     }
-  };
-
-  const handleUpdateStatus = (id: string, newStatus: string) => {
-    updateComplaint(id, { status: newStatus });
-  };
-
-  const handleAssignWorker = (id: string, workerName: string) => {
-    updateComplaint(id, { assignedWorkerName: workerName, status: 'In Progress' });
-  };
-
-  const handleSaveRemarks = (id: string) => {
-    updateComplaint(id, { adminRemarks: editingRemarks });
-    setEditingId(null);
-    setEditingRemarks('');
-  };
-
-  const handleOpenModal = (complaint: any) => {
-    setSelectedComplaint(complaint);
-    setIsModalOpen(true);
   };
 
   return (
@@ -227,6 +261,9 @@ export default function AdminComplaintManagementPage() {
                         Description
                       </th>
                       <th className="text-left py-4 px-6 font-heading text-sm font-semibold text-foreground">
+                        Citizen
+                      </th>
+                      <th className="text-left py-4 px-6 font-heading text-sm font-semibold text-foreground">
                         Location
                       </th>
                       <th className="text-left py-4 px-6 font-heading text-sm font-semibold text-foreground">
@@ -248,7 +285,7 @@ export default function AdminComplaintManagementPage() {
                       >
                         <td className="py-4 px-6">
                           <button
-                            onClick={() => handleOpenModal(complaint)}
+                            onClick={() => handleOpenDetailModal(complaint)}
                             className="font-paragraph text-sm font-medium text-primary hover:underline"
                           >
                             {complaint._id}
@@ -258,6 +295,15 @@ export default function AdminComplaintManagementPage() {
                           <p className="font-paragraph text-sm text-foreground/80 line-clamp-2">
                             {complaint.description}
                           </p>
+                        </td>
+                        <td className="py-4 px-6">
+                          <button
+                            onClick={() => handleOpenCitizenDetails(complaint)}
+                            className="font-paragraph text-sm text-primary hover:underline flex items-center gap-1"
+                          >
+                            <Eye className="w-4 h-4" />
+                            {complaint.citizenName}
+                          </button>
                         </td>
                         <td className="py-4 px-6">
                           <div className="flex items-center text-foreground/80">
@@ -315,7 +361,7 @@ export default function AdminComplaintManagementPage() {
                             }}
                             className="font-paragraph text-xs"
                           >
-                            Add Remarks
+                            Remarks
                           </Button>
                         </td>
                       </tr>
@@ -374,8 +420,28 @@ export default function AdminComplaintManagementPage() {
       {/* Detail Modal */}
       <ComplaintDetailModal
         complaint={selectedComplaint}
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+      />
+
+      {/* Resolution Modal */}
+      <ResolutionModal
+        isOpen={isResolutionModalOpen}
+        complaintId={selectedComplaint?._id || ''}
+        complaintTitle={selectedComplaint?.complaintTitle || ''}
+        onClose={() => setIsResolutionModalOpen(false)}
+        onSubmit={handleResolutionSubmit}
+      />
+
+      {/* Citizen Details Modal */}
+      <CitizenDetailsModal
+        isOpen={isCitizenDetailsOpen}
+        onClose={() => setIsCitizenDetailsOpen(false)}
+        citizenName={selectedCitizen?.citizenName}
+        citizenEmail={selectedCitizen?.citizenEmail}
+        citizenPhone={selectedCitizen?.citizenPhone}
+        totalComplaints={selectedCitizen?.totalComplaints}
+        recentComplaints={selectedCitizen?.recentComplaints}
       />
 
       <Footer />

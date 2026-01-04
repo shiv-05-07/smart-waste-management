@@ -76,9 +76,9 @@ export default function CitizenDashboardPage() {
   const getStatusColor = (status?: string) => {
     switch (status) {
       case 'Pending':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-red-100 text-red-800 border-red-300';
       case 'In Progress':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
+        return 'bg-orange-100 text-orange-800 border-orange-300';
       case 'Resolved':
         return 'bg-green-100 text-green-800 border-green-300';
       default:
@@ -89,7 +89,7 @@ export default function CitizenDashboardPage() {
   const getStatusIcon = (status?: string) => {
     switch (status) {
       case 'Pending':
-        return <Clock className="w-4 h-4" />;
+        return <AlertCircle className="w-4 h-4" />;
       case 'In Progress':
         return <AlertCircle className="w-4 h-4" />;
       case 'Resolved':
