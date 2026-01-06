@@ -18,71 +18,14 @@ export default function Header() {
             <div className="w-10 h-10 bg-primary rounded-sm flex items-center justify-center">
               <span className="text-white font-heading text-xl font-bold">W</span>
             </div>
-            <span className="font-heading text-xl font-semibold text-foreground hidden md:block">
+            <span className="font-heading text-xl font-semibold text-foreground">
               Waste Management
             </span>
           </Link>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link 
-              to="/" 
-              className={`font-paragraph text-base transition-colors ${
-                isActive('/') ? 'text-primary' : 'text-foreground hover:text-primary'
-              }`}
-            >
-              Home
-            </Link>
-            <Link 
-              to="/about" 
-              className={`font-paragraph text-base transition-colors ${
-                isActive('/about') ? 'text-primary' : 'text-foreground hover:text-primary'
-              }`}
-            >
-              About
-            </Link>
-            <Link 
-              to="/how-it-works" 
-              className={`font-paragraph text-base transition-colors ${
-                isActive('/how-it-works') ? 'text-primary' : 'text-foreground hover:text-primary'
-              }`}
-            >
-              How It Works
-            </Link>
-            <Link 
-              to="/contact" 
-              className={`font-paragraph text-base transition-colors ${
-                isActive('/contact') ? 'text-primary' : 'text-foreground hover:text-primary'
-              }`}
-            >
-              Contact
-            </Link>
-            <Link 
-              to="/citizen-login" 
-              className={`font-paragraph text-base transition-colors ${
-                isActive('/citizen-login') ? 'text-primary' : 'text-foreground hover:text-primary'
-              }`}
-            >
-              Citizen Login
-            </Link>
-            <Link 
-              to="/admin-login" 
-              className={`font-paragraph text-base transition-colors ${
-                isActive('/admin-login') ? 'text-secondary' : 'text-foreground hover:text-secondary'
-              }`}
-            >
-              Admin Login
-            </Link>
-            <Link to="/citizen-signup">
-              <Button className="bg-primary text-primary-foreground hover:bg-primary/90 rounded">
-                Sign Up
-              </Button>
-            </Link>
-          </nav>
-
-          {/* Mobile Menu Button */}
+          {/* Menu Button - Always Visible */}
           <button
-            className="md:hidden p-2"
+            className="p-2"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -94,9 +37,9 @@ export default function Header() {
           </button>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Navigation Menu */}
         {mobileMenuOpen && (
-          <nav className="md:hidden py-4 border-t border-gray-200">
+          <nav className="py-4 border-t border-gray-200">
             <div className="flex flex-col space-y-4">
               <Link 
                 to="/" 
