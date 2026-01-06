@@ -7,6 +7,7 @@ import { Image } from '@/components/ui/image';
 import { FileText, Eye, CheckCircle, Users, Building2, ArrowRight, MapPin, Activity, ShieldCheck } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
+import ImageSlideshow from '@/components/ImageSlideshow';
 
 // --- Utility Components ---
 
@@ -250,32 +251,35 @@ const ProcessSection = () => {
         </div>
 
         <div className="flex flex-col lg:flex-row gap-12 lg:gap-24">
-          {/* Sticky Visual Side */}
+          {/* Sticky Visual Side - Image Slideshow */}
           <div className="lg:w-1/2 order-2 lg:order-1">
-            <div className="sticky top-32 h-[60vh] w-full rounded-[2rem] overflow-hidden shadow-2xl bg-white border border-gray-100">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeStep}
-                  initial={{ opacity: 0, scale: 1.05 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.5 }}
-                  className="absolute inset-0"
-                >
-                  <Image 
-                    src={steps[activeStep - 1].image}
-                    alt={steps[activeStep - 1].title}
-                    className="w-full h-full object-cover"
-                  />
-                  {/* Overlay Info */}
-                  <div className="absolute bottom-0 left-0 right-0 p-8 bg-gradient-to-t from-black/80 via-black/40 to-transparent text-white">
-                    <div className={`inline-flex items-center justify-center w-12 h-12 rounded-full ${steps[activeStep - 1].color} text-white mb-4`}>
-                      {React.createElement(steps[activeStep - 1].icon, { className: "w-6 h-6" })}
-                    </div>
-                    <h3 className="text-3xl font-heading">{steps[activeStep - 1].title}</h3>
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+            <div className="sticky top-32 h-[60vh] w-full">
+              <ImageSlideshow
+                images={[
+                  {
+                    src: steps[0].image,
+                    alt: steps[0].title,
+                    title: steps[0].title,
+                    description: steps[0].description
+                  },
+                  {
+                    src: steps[1].image,
+                    alt: steps[1].title,
+                    title: steps[1].title,
+                    description: steps[1].description
+                  },
+                  {
+                    src: steps[2].image,
+                    alt: steps[2].title,
+                    title: steps[2].title,
+                    description: steps[2].description
+                  }
+                ]}
+                autoPlay={true}
+                autoPlayInterval={5000}
+                showControls={true}
+                showDots={true}
+              />
             </div>
           </div>
 
