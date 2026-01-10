@@ -238,8 +238,6 @@ const steps = [
 ];
 
 const ProcessSection = () => {
-  const [activeStep, setActiveStep] = useState(1);
-
   return (
     <section className="relative bg-background py-16 sm:py-20 md:py-24">
       <div className="container max-w-[100rem] mx-auto px-6 md:px-12">
@@ -250,10 +248,28 @@ const ProcessSection = () => {
           </AnimatedReveal>
         </div>
 
-        <div className="flex flex-col lg:flex-row gap-8 md:gap-12 lg:gap-24">
-          {/* Sticky Visual Side - Image Slideshow */}
-          <div className="lg:w-1/2 order-2 lg:order-1">
-            <div className="sticky top-20 sm:top-24 md:top-32 h-[40vh] sm:h-[50vh] md:h-[60vh] w-full">
+        <div className="space-y-12 md:space-y-16">
+          {/* Step 1: Report */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center"
+          >
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <span className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-gray-200">01</span>
+                <div className="h-px flex-1 bg-primary" />
+              </div>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-4 sm:mb-6 text-primary">
+                {steps[0].title}
+              </h3>
+              <p className="text-base sm:text-lg md:text-xl font-paragraph text-foreground/80 leading-relaxed">
+                {steps[0].description}
+              </p>
+            </div>
+            <div className="h-[40vh] sm:h-[50vh] md:h-[60vh] w-full">
               <ImageSlideshow
                 images={[
                   {
@@ -261,13 +277,77 @@ const ProcessSection = () => {
                     alt: steps[0].title,
                     title: steps[0].title,
                     description: steps[0].description
-                  },
+                  }
+                ]}
+                autoPlay={false}
+                showControls={true}
+                showDots={false}
+                enableSwipe={true}
+              />
+            </div>
+          </motion.div>
+
+          {/* Step 2: Track */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center"
+          >
+            <div className="h-[40vh] sm:h-[50vh] md:h-[60vh] w-full md:order-2">
+              <ImageSlideshow
+                images={[
                   {
                     src: steps[1].image,
                     alt: steps[1].title,
                     title: steps[1].title,
                     description: steps[1].description
-                  },
+                  }
+                ]}
+                autoPlay={false}
+                showControls={true}
+                showDots={false}
+                enableSwipe={true}
+              />
+            </div>
+            <div className="md:order-1">
+              <div className="flex items-center gap-4 mb-6">
+                <span className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-gray-200">02</span>
+                <div className="h-px flex-1 bg-primary" />
+              </div>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-4 sm:mb-6 text-primary">
+                {steps[1].title}
+              </h3>
+              <p className="text-base sm:text-lg md:text-xl font-paragraph text-foreground/80 leading-relaxed">
+                {steps[1].description}
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Step 3: Resolve */}
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center"
+          >
+            <div>
+              <div className="flex items-center gap-4 mb-6">
+                <span className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-gray-200">03</span>
+                <div className="h-px flex-1 bg-primary" />
+              </div>
+              <h3 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-4 sm:mb-6 text-primary">
+                {steps[2].title}
+              </h3>
+              <p className="text-base sm:text-lg md:text-xl font-paragraph text-foreground/80 leading-relaxed">
+                {steps[2].description}
+              </p>
+            </div>
+            <div className="h-[40vh] sm:h-[50vh] md:h-[60vh] w-full">
+              <ImageSlideshow
+                images={[
                   {
                     src: steps[2].image,
                     alt: steps[2].title,
@@ -275,66 +355,20 @@ const ProcessSection = () => {
                     description: steps[2].description
                   }
                 ]}
-                autoPlay={true}
-                autoPlayInterval={5000}
+                autoPlay={false}
                 showControls={true}
                 showDots={false}
                 enableSwipe={true}
               />
             </div>
-          </div>
-
-          {/* Scrollable Text Side */}
-          <div className="lg:w-1/2 order-1 lg:order-2 flex flex-col gap-[30vh] sm:gap-[35vh] md:gap-[40vh] py-[5vh] sm:py-[8vh] md:py-[10vh]">
-            {steps.map((step) => (
-              <StepCard 
-                key={step.id} 
-                step={step} 
-                isActive={activeStep === step.id} 
-                onInView={() => setActiveStep(step.id)} 
-              />
-            ))}
-          </div>
+          </motion.div>
         </div>
       </div>
     </section>
   );
 };
 
-const StepCard = ({ step, isActive, onInView }: { step: any, isActive: boolean, onInView: () => void }) => {
-  const ref = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const element = ref.current;
-    if (!element) return;
-
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) {
-        onInView();
-      }
-    }, { threshold: 0.6 });
-
-    observer.observe(element);
-    return () => observer.disconnect();
-  }, [onInView]);
-
-  return (
-    <div ref={ref} className={`transition-opacity duration-500 ${isActive ? 'opacity-100' : 'opacity-30'}`}>
-      <div className="flex items-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-        <span className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-gray-200">0{step.id}</span>
-        <div className={`h-px flex-1 ${isActive ? 'bg-primary' : 'bg-gray-200'}`} />
-      </div>
-      <h3 className={`text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-4 sm:mb-6 ${isActive ? 'text-primary' : 'text-foreground'}`}>
-        {step.title}
-      </h3>
-      <p className="text-base sm:text-lg md:text-xl font-paragraph text-foreground/80 leading-relaxed">
-        {step.description}
-      </p>
-    </div>
-  );
-};
-
-// --- Benefits Section ---
 
 const BenefitsSection = () => {
   return (
