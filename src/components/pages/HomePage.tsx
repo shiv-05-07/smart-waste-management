@@ -255,10 +255,10 @@ const ProcessSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative grid grid-cols-1 md:grid-cols-2 gap-0 min-h-[50vh] md:min-h-[60vh]"
+            className="relative min-h-[50vh] md:min-h-[60vh] flex items-center"
           >
-            {/* Background Image - Left Side */}
-            <div className="absolute left-0 top-0 w-1/2 h-full opacity-20 pointer-events-none hidden md:block">
+            {/* Background Image - Full Width */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none hidden md:block">
               <ImageSlideshow
                 images={[
                   {
@@ -275,8 +275,8 @@ const ProcessSection = () => {
               />
             </div>
             
-            {/* Text Content - Left Side */}
-            <div className="relative z-10 flex flex-col justify-center px-6 md:px-12 py-8 md:py-0">
+            {/* Text Content */}
+            <div className="relative z-10 w-full px-6 md:px-12">
               <div className="flex items-center gap-4 mb-6">
                 <span className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-gray-200">01</span>
                 <div className="h-px flex-1 bg-primary" />
@@ -284,31 +284,13 @@ const ProcessSection = () => {
               <h3 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-4 sm:mb-6 text-primary">
                 {steps[0].title}
               </h3>
-              <p className="text-base sm:text-lg md:text-xl font-paragraph text-foreground/80 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl font-paragraph text-foreground/80 leading-relaxed max-w-2xl">
                 {steps[0].description}
               </p>
             </div>
 
-            {/* Background Image - Right Side */}
-            <div className="absolute right-0 top-0 w-1/2 h-full opacity-20 pointer-events-none hidden md:block">
-              <ImageSlideshow
-                images={[
-                  {
-                    src: steps[0].image,
-                    alt: steps[0].title,
-                    title: steps[0].title,
-                    description: steps[0].description
-                  }
-                ]}
-                autoPlay={false}
-                showControls={false}
-                showDots={false}
-                enableSwipe={false}
-              />
-            </div>
-
             {/* Mobile Image - Below Text */}
-            <div className="h-[40vh] w-full md:hidden">
+            <div className="absolute bottom-0 left-0 right-0 h-[40vh] w-full md:hidden">
               <ImageSlideshow
                 images={[
                   {
@@ -332,10 +314,10 @@ const ProcessSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative grid grid-cols-1 md:grid-cols-2 gap-0 min-h-[50vh] md:min-h-[60vh]"
+            className="relative min-h-[50vh] md:min-h-[60vh] flex items-center"
           >
-            {/* Background Image - Left Side */}
-            <div className="absolute left-0 top-0 w-1/2 h-full opacity-20 pointer-events-none hidden md:block">
+            {/* Background Image - Full Width */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none hidden md:block">
               <ImageSlideshow
                 images={[
                   {
@@ -352,8 +334,8 @@ const ProcessSection = () => {
               />
             </div>
 
-            {/* Text Content - Right Side */}
-            <div className="relative z-10 flex flex-col justify-center px-6 md:px-12 py-8 md:py-0 md:col-start-2">
+            {/* Text Content */}
+            <div className="relative z-10 w-full px-6 md:px-12">
               <div className="flex items-center gap-4 mb-6">
                 <span className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-gray-200">02</span>
                 <div className="h-px flex-1 bg-primary" />
@@ -361,31 +343,13 @@ const ProcessSection = () => {
               <h3 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-4 sm:mb-6 text-primary">
                 {steps[1].title}
               </h3>
-              <p className="text-base sm:text-lg md:text-xl font-paragraph text-foreground/80 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl font-paragraph text-foreground/80 leading-relaxed max-w-2xl">
                 {steps[1].description}
               </p>
             </div>
 
-            {/* Background Image - Right Side */}
-            <div className="absolute right-0 top-0 w-1/2 h-full opacity-20 pointer-events-none hidden md:block">
-              <ImageSlideshow
-                images={[
-                  {
-                    src: steps[1].image,
-                    alt: steps[1].title,
-                    title: steps[1].title,
-                    description: steps[1].description
-                  }
-                ]}
-                autoPlay={false}
-                showControls={false}
-                showDots={false}
-                enableSwipe={false}
-              />
-            </div>
-
             {/* Mobile Image - Below Text */}
-            <div className="h-[40vh] w-full md:hidden">
+            <div className="absolute bottom-0 left-0 right-0 h-[40vh] w-full md:hidden">
               <ImageSlideshow
                 images={[
                   {
@@ -409,10 +373,10 @@ const ProcessSection = () => {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
-            className="relative grid grid-cols-1 md:grid-cols-2 gap-0 min-h-[50vh] md:min-h-[60vh]"
+            className="relative min-h-[50vh] md:min-h-[60vh] flex items-center"
           >
-            {/* Background Image - Left Side */}
-            <div className="absolute left-0 top-0 w-1/2 h-full opacity-20 pointer-events-none hidden md:block">
+            {/* Background Image - Full Width */}
+            <div className="absolute inset-0 opacity-20 pointer-events-none hidden md:block">
               <ImageSlideshow
                 images={[
                   {
@@ -429,8 +393,8 @@ const ProcessSection = () => {
               />
             </div>
 
-            {/* Text Content - Left Side */}
-            <div className="relative z-10 flex flex-col justify-center px-6 md:px-12 py-8 md:py-0">
+            {/* Text Content */}
+            <div className="relative z-10 w-full px-6 md:px-12">
               <div className="flex items-center gap-4 mb-6">
                 <span className="text-4xl sm:text-5xl md:text-6xl font-heading font-bold text-gray-200">03</span>
                 <div className="h-px flex-1 bg-primary" />
@@ -438,31 +402,13 @@ const ProcessSection = () => {
               <h3 className="text-2xl sm:text-3xl md:text-4xl font-heading font-bold mb-4 sm:mb-6 text-primary">
                 {steps[2].title}
               </h3>
-              <p className="text-base sm:text-lg md:text-xl font-paragraph text-foreground/80 leading-relaxed">
+              <p className="text-base sm:text-lg md:text-xl font-paragraph text-foreground/80 leading-relaxed max-w-2xl">
                 {steps[2].description}
               </p>
             </div>
 
-            {/* Background Image - Right Side */}
-            <div className="absolute right-0 top-0 w-1/2 h-full opacity-20 pointer-events-none hidden md:block">
-              <ImageSlideshow
-                images={[
-                  {
-                    src: steps[2].image,
-                    alt: steps[2].title,
-                    title: steps[2].title,
-                    description: steps[2].description
-                  }
-                ]}
-                autoPlay={false}
-                showControls={false}
-                showDots={false}
-                enableSwipe={false}
-              />
-            </div>
-
             {/* Mobile Image - Below Text */}
-            <div className="h-[40vh] w-full md:hidden">
+            <div className="absolute bottom-0 left-0 right-0 h-[40vh] w-full md:hidden">
               <ImageSlideshow
                 images={[
                   {
